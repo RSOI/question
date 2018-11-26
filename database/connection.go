@@ -34,7 +34,7 @@ func Connect() {
 }
 
 func createShema() error {
-	sql, err := ioutil.ReadFile("scheme.sql")
+	sql, err := ioutil.ReadFile("database/scheme.sql")
 	if err != nil {
 		return err
 	}
