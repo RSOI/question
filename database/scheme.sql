@@ -17,5 +17,7 @@ CREATE TABLE question.question (
 CREATE TABLE question.services (
   id SERIAL PRIMARY KEY,
   request CITEXT NOT NULL,
-  RequestTime TIMESTAMPTZ DEFAULT NOW()
+  request_time TIMESTAMPTZ DEFAULT NOW(),
+  response_status INTEGER NOT NULL,
+  response_error_text CITEXT NULL
 );
