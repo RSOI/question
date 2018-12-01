@@ -27,12 +27,12 @@ func GetUsageStatistic(host string) (ServiceStatus, error) {
 	var err error
 
 	row := database.DB.QueryRow(`
-    SELECT cnt.*, last_usage.* FROM
-      (SELECT count(*) FROM question.services) AS cnt,
-      (SELECT request, request_time, response_status, response_error_text
-        FROM question.services ORDER BY id DESC LIMIT 1
-      ) AS last_usage
-  `)
+		SELECT cnt.*, last_usage.* FROM
+			(SELECT count(*) FROM question.services) AS cnt,
+			(SELECT request, request_time, response_status, response_error_text
+				FROM question.services ORDER BY id DESC LIMIT 1
+			) AS last_usage
+	`)
 	var ServiceResponse ServiceStatus
 	err = row.Scan(
 		&ServiceResponse.RequestsCount,
@@ -56,9 +56,9 @@ func LogStat(request []byte, responseStatus int, responseError string) {
 	var err error
 
 	res, err := database.DB.Exec(`
-    INSERT INTO question.services 
-      (request, response_status, response_error_text) VALUES ($1, $2, $3)
-  `, string(request), responseStatus, responseError)
+		INSERT INTO question.services 
+			(request, response_status, response_error_text) VALUES ($1, $2, $3)
+	`, string(request), responseStatus, responseError)
 
 	if err != nil {
 		// log
