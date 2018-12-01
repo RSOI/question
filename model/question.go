@@ -21,10 +21,10 @@ func AddQuestion(q Question) (Question, error) {
 	var err error
 
 	row := database.DB.QueryRow(`
-		INSERT INTO question.question
-			(title, content, author_id) VALUES ($1, $2, $3)
-			RETURNING id, created, has_best
-	`, q.Title, q.Content, q.AuthorID)
+    INSERT INTO question.question
+      (title, content, author_id) VALUES ($1, $2, $3)
+      RETURNING id, created, has_best
+  `, q.Title, q.Content, q.AuthorID)
 
 	err = row.Scan(&q.ID, &q.Created, &q.HasBest)
 	return q, err
@@ -120,7 +120,7 @@ func UpdateQuestion(q Question) (Question, error) {
 		}
 
 		res, err := database.DB.Exec(`
-			UPDATE question.question SET content = $1, has_best = $2 WHERE id = $3`,
+      UPDATE question.question SET content = $1, has_best = $2 WHERE id = $3`,
 			content, best, q.ID)
 		if err == nil && res.RowsAffected() != 1 {
 			err = ErrNoDataToDelete
