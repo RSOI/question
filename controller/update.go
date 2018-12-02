@@ -23,12 +23,12 @@ func UpdatePATCH(ctx *fasthttp.RequestCtx) {
 			r.Status = 400
 			r.Error = "some of next parameters are required: " + f
 		} else {
-			r.Data, err = model.UpdateQuestion(QuestionToUpdate)
+			r.Data, err = QuestionModel.UpdateQuestion(QuestionToUpdate)
 			r.Status, r.Error = errToResponse(err)
 		}
 	}
 
-	model.LogStat(ctx.Path(), r.Status, r.Error)
+	QuestionModel.LogStat(ctx.Path(), r.Status, r.Error)
 
 	ctx.Response.Header.Set("Content-Type", "application/json")
 	ctx.Response.SetStatusCode(r.Status)

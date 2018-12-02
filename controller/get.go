@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/RSOI/question/model"
 	"github.com/valyala/fasthttp"
 )
 
@@ -15,14 +14,14 @@ func QuestionGET(ctx *fasthttp.RequestCtx) {
 
 	qID, _ := strconv.Atoi(ctx.UserValue("id").(string))
 
-	r.Data, err = model.GetQuestionByID(qID)
+	r.Data, err = QuestionModel.GetQuestionByID(qID)
 	if err != nil {
 		r.Data = nil
 	}
 
 	r.Status, r.Error = errToResponse(err)
 
-	model.LogStat(ctx.Path(), r.Status, r.Error)
+	QuestionModel.LogStat(ctx.Path(), r.Status, r.Error)
 
 	ctx.Response.Header.Set("Content-Type", "application/json")
 	ctx.Response.SetStatusCode(r.Status)
@@ -38,14 +37,14 @@ func QuestionsGET(ctx *fasthttp.RequestCtx) {
 
 	qAuthorID, _ := strconv.Atoi(ctx.UserValue("authorid").(string))
 
-	r.Data, err = model.GetQuestionsByAuthorID(qAuthorID)
+	r.Data, err = QuestionModel.GetQuestionsByAuthorID(qAuthorID)
 	if err != nil {
 		r.Data = nil
 	}
 
 	r.Status, r.Error = errToResponse(err)
 
-	model.LogStat(ctx.Path(), r.Status, r.Error)
+	QuestionModel.LogStat(ctx.Path(), r.Status, r.Error)
 
 	ctx.Response.Header.Set("Content-Type", "application/json")
 	ctx.Response.SetStatusCode(r.Status)

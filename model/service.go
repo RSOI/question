@@ -3,7 +3,6 @@ package model
 import (
 	"time"
 
-	"github.com/RSOI/question/database"
 	"github.com/jackc/pgx"
 )
 
@@ -23,10 +22,10 @@ type ServiceStatus struct {
 }
 
 // GetUsageStatistic provides access to logs
-func GetUsageStatistic(host string) (ServiceStatus, error) {
+func (service *QService) GetUsageStatistic(host string) (ServiceStatus, error) {
 	var err error
 
-	row := database.DB.QueryRow(`
+	row := service.Conn.QueryRow(`
 		SELECT cnt.*, last_usage.* FROM
 			(SELECT count(*) FROM question.services) AS cnt,
 			(SELECT request, request_time, response_status, response_error_text
@@ -52,10 +51,10 @@ func GetUsageStatistic(host string) (ServiceStatus, error) {
 }
 
 // LogStat Set request into log db table
-func LogStat(request []byte, responseStatus int, responseError string) {
+func (service *QService) LogStat(request []byte, responseStatus int, responseError string) {
 	var err error
 
-	res, err := database.DB.Exec(`
+	res, err := service.Conn.Exec(`
 		INSERT INTO question.services 
 			(request, response_status, response_error_text) VALUES ($1, $2, $3)
 	`, string(request), responseStatus, responseError)

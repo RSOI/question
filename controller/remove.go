@@ -25,15 +25,15 @@ func RemoveDELETE(ctx *fasthttp.RequestCtx) {
 		} else {
 			switch f {
 			case "id":
-				err = QuestionToRemove.DeleteByID()
+				err = QuestionModel.DeleteQuestionByID(QuestionToRemove)
 			case "author_id":
-				err = QuestionToRemove.DeleteByAuthorID()
+				err = QuestionModel.DeleteQuestionByAuthorID(QuestionToRemove)
 			}
 			r.Status, r.Error = errToResponse(err)
 		}
 	}
 
-	model.LogStat(ctx.Path(), r.Status, r.Error)
+	QuestionModel.LogStat(ctx.Path(), r.Status, r.Error)
 
 	ctx.Response.Header.Set("Content-Type", "application/json")
 	ctx.Response.SetStatusCode(r.Status)

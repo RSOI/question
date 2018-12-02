@@ -7,11 +7,8 @@ import (
 	"github.com/jackc/pgx"
 )
 
-// DB instance
-var DB *pgx.ConnPool
-
 // Connect to postgrss
-func Connect() {
+func Connect() *pgx.ConnPool {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	connection := pgx.ConnConfig{
 		Host:     "localhost",
@@ -22,24 +19,26 @@ func Connect() {
 	}
 
 	var err error
-	DB, err = pgx.NewConnPool(pgx.ConnPoolConfig{ConnConfig: connection, MaxConnections: 50})
+	db, err := pgx.NewConnPool(pgx.ConnPoolConfig{ConnConfig: connection, MaxConnections: 50})
 	if err != nil {
 		panic(err)
 	}
 
-	err = createShema()
+	err = createShema(db)
 	if err != nil {
 		panic(err)
 	}
+
+	return db
 }
 
-func createShema() error {
+func createShema(db *pgx.ConnPool) error {
 	sql, err := ioutil.ReadFile("database/scheme.sql")
 	if err != nil {
 		return err
 	}
 	shema := string(sql)
 
-	_, err = DB.Exec(shema)
+	_, err = db.Exec(shema)
 	return err
 }

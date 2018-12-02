@@ -3,7 +3,6 @@ package controller
 import (
 	"encoding/json"
 
-	"github.com/RSOI/question/model"
 	"github.com/valyala/fasthttp"
 )
 
@@ -12,7 +11,7 @@ func IndexGET(ctx *fasthttp.RequestCtx) {
 	var err error
 	var r Response
 	r.Status = 200
-	r.Data, err = model.GetUsageStatistic(string(ctx.Host()))
+	r.Data, err = QuestionModel.GetUsageStatistic(string(ctx.Host()))
 	if err != nil {
 		r.Status, r.Error = errToResponse(err)
 		r.Data = nil

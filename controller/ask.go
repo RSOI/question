@@ -8,7 +8,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-// AskPOST new question
+// AskPUT new question
 func AskPUT(ctx *fasthttp.RequestCtx) {
 	var err error
 	var r Response
@@ -23,7 +23,7 @@ func AskPUT(ctx *fasthttp.RequestCtx) {
 			r.Status = 400
 			r.Error = "required fields are empty: " + missingFields
 		} else {
-			r.Data, err = model.AddQuestion(NewQuestion)
+			r.Data, err = QuestionModel.AddQuestion(NewQuestion)
 			if err == nil {
 				r.Status = 201
 			} else {
@@ -33,7 +33,7 @@ func AskPUT(ctx *fasthttp.RequestCtx) {
 		}
 	}
 
-	model.LogStat(ctx.Path(), r.Status, r.Error)
+	QuestionModel.LogStat(ctx.Path(), r.Status, r.Error)
 
 	ctx.Response.Header.Set("Content-Type", "application/json")
 	ctx.Response.SetStatusCode(r.Status)

@@ -9,7 +9,7 @@ func ValidateNewQuestion(data model.Question) (bool, string) {
 		required = append(required, "title")
 	}
 
-	if *data.Content == "" {
+	if data.Content == nil || *data.Content == "" {
 		required = append(required, "content")
 	}
 
