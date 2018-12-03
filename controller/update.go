@@ -21,9 +21,12 @@ func UpdatePATCH(ctx *fasthttp.RequestCtx) {
 		validate, f := view.ValidateUpdateQuestion(QuestionToUpdate)
 		if !validate {
 			r.Status = 400
-			r.Error = "some of next parameters are required: " + f
+			r.Error = "required fields are empty: " + f
 		} else {
 			r.Data, err = QuestionModel.UpdateQuestion(QuestionToUpdate)
+			if err != nil {
+				r.Data = nil
+			}
 			r.Status, r.Error = errToResponse(err)
 		}
 	}

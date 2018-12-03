@@ -21,7 +21,7 @@ func RemoveDELETE(ctx *fasthttp.RequestCtx) {
 		validate, f := view.ValidateDeleteQuestion(QuestionToRemove)
 		if !validate {
 			r.Status = 400
-			r.Error = "one of next parameters are required: " + f
+			r.Error = "required fields are empty: " + f
 		} else {
 			switch f {
 			case "id":

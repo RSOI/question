@@ -36,8 +36,13 @@ func errToResponse(err error) (int, string) {
 	case nil:
 		statusCode = 200
 	case pgx.ErrNoRows:
+		statusText = model.ErrNoResult.Error()
 		statusCode = 404
 	case model.ErrNoResult:
+		statusCode = 404
+	case model.ErrNoDataToDelete:
+		statusCode = 404
+	case model.ErrNoDataToUpdate:
 		statusCode = 404
 	case model.ErrUnavailable:
 		statusCode = 503

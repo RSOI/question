@@ -41,7 +41,7 @@ func (service *QService) DeleteQuestionByID(q Question) error {
 func (service *QService) DeleteQuestionByAuthorID(q Question) error {
 	res, err := service.Conn.Exec(`DELETE FROM question.question WHERE author_id = $1`, q.AuthorID)
 	if err == nil && res.RowsAffected() != 1 {
-		err = ErrNoDataToDelete
+		err = nil
 	}
 	return err
 }
@@ -73,6 +73,7 @@ func (service *QService) GetQuestionsByAuthorID(qAuthorID int) ([]Question, erro
 	if err != nil {
 		return q, err
 	}
+
 	for rows.Next() {
 		var tq Question
 		err = rows.Scan(
@@ -121,7 +122,7 @@ func (service *QService) UpdateQuestion(q Question) (Question, error) {
 			UPDATE question.question SET content = $1, has_best = $2 WHERE id = $3`,
 			content, best, q.ID)
 		if err == nil && res.RowsAffected() != 1 {
-			err = ErrNoDataToDelete
+			err = ErrNoDataToUpdate
 		}
 	}
 
