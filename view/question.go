@@ -1,45 +1,38 @@
 package view
 
-import "github.com/RSOI/question/model"
+import (
+	"github.com/RSOI/question/model"
+	"github.com/RSOI/question/ui"
+)
 
-// ValidateNewQuestion returns true if all the required form values are passed
-func ValidateNewQuestion(data model.Question) (bool, string) {
-	var required []string
-	if data.Title == "" {
-		required = append(required, "title")
+// ValidateNewQuestion returns nil if all the required form values are passed
+func ValidateNewQuestion(data model.Question) error {
+	if data.Title == "" ||
+		data.Content == nil ||
+		*data.Content == "" ||
+		data.AuthorID == 0 {
+		return ui.ErrFieldsRequired
 	}
-
-	if data.Content == nil || *data.Content == "" {
-		required = append(required, "content")
-	}
-
-	if data.AuthorID == 0 {
-		required = append(required, "author_id")
-	}
-
-	return len(required) == 0, fieldsToString(required)
+	return nil
 }
 
 // ValidateDeleteQuestion returns true if parameter to delete found
-func ValidateDeleteQuestion(data model.Question) (bool, string) {
-	var required []string
-
-	if data.ID == 0 {
-		required = append(required, "id")
-	} else {
-		return true, "id"
+func ValidateDeleteQuestion(data model.Question) (string, error) {
+	if data.ID != 0 {
+		return "id", nil
 	}
 
-	if data.AuthorID == 0 {
-		required = append(required, "author_id")
-	} else {
-		return true, "author_id"
+	if data.AuthorID != 0 {
+		return "author_id", nil
 	}
 
-	return false, fieldsToString(required)
+	return "", ui.ErrFieldsRequired
 }
 
-// ValidateUpdateQuestion returns true if parameter to delete found
-func ValidateUpdateQuestion(data model.Question) (bool, string) {
-	return data.ID != 0, "id"
+// ValidateUpdateQuestion returns nil if parameter to delete found
+func ValidateUpdateQuestion(data model.Question) error {
+	if data.ID != 0 {
+		return nil
+	}
+	return ui.ErrFieldsRequired
 }

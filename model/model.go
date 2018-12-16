@@ -1,8 +1,6 @@
 package model
 
 import (
-	"errors"
-
 	"github.com/jackc/pgx"
 )
 
@@ -22,14 +20,3 @@ type QServiceInterface interface {
 	GetUsageStatistic(host string) (ServiceStatus, error)
 	LogStat(request []byte, responseStatus int, responseError string)
 }
-
-var (
-	// ErrNoResult - no data found
-	ErrNoResult = errors.New("no data found")
-	// ErrNoDataToDelete - no data found to delete"
-	ErrNoDataToDelete = errors.New("no data found to delete")
-	// ErrNoDataToDelete - no data found to delete"
-	ErrNoDataToUpdate = errors.New("no data found to update")
-	// ErrUnavailable - database is unavailable
-	ErrUnavailable = errors.New("database is unavailable")
-)

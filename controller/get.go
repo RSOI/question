@@ -1,54 +1,33 @@
 package controller
 
 import (
-	"encoding/json"
 	"strconv"
 
-	"github.com/valyala/fasthttp"
+	"github.com/RSOI/question/model"
 )
 
 // QuestionGET get question by id
-func QuestionGET(ctx *fasthttp.RequestCtx) {
-	var err error
-	var r Response
+func QuestionGET(id string) (*model.Question, error) {
+	qID, _ := strconv.Atoi(id)
 
-	qID, _ := strconv.Atoi(ctx.UserValue("id").(string))
-
-	r.Data, err = QuestionModel.GetQuestionByID(qID)
+	Question, err := QuestionModel.GetQuestionByID(qID)
 	if err != nil {
-		r.Data = nil
+		return nil, err
 	}
 
-	r.Status, r.Error = errToResponse(err)
-
-	QuestionModel.LogStat(ctx.Path(), r.Status, r.Error)
-
-	ctx.Response.Header.Set("Content-Type", "application/json")
-	ctx.Response.SetStatusCode(r.Status)
-
-	content, _ := json.Marshal(r)
-	ctx.Write(content)
+	return &Question, nil
 }
 
 // QuestionsGET get questions by author
-func QuestionsGET(ctx *fasthttp.RequestCtx) {
+func QuestionsGET(aid string) ([]model.Question, error) {
 	var err error
-	var r Response
 
-	qAuthorID, _ := strconv.Atoi(ctx.UserValue("authorid").(string))
+	qAuthorID, _ := strconv.Atoi(aid)
 
-	r.Data, err = QuestionModel.GetQuestionsByAuthorID(qAuthorID)
+	data, err := QuestionModel.GetQuestionsByAuthorID(qAuthorID)
 	if err != nil {
-		r.Data = nil
+		return nil, err
 	}
 
-	r.Status, r.Error = errToResponse(err)
-
-	QuestionModel.LogStat(ctx.Path(), r.Status, r.Error)
-
-	ctx.Response.Header.Set("Content-Type", "application/json")
-	ctx.Response.SetStatusCode(r.Status)
-
-	content, _ := json.Marshal(r)
-	ctx.Write(content)
+	return data, nil
 }

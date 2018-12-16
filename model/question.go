@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+
+	"github.com/RSOI/question/ui"
 )
 
 // Question interface
@@ -32,7 +34,7 @@ func (service *QService) AddQuestion(q Question) (Question, error) {
 func (service *QService) DeleteQuestionByID(q Question) error {
 	res, err := service.Conn.Exec(`DELETE FROM question.question WHERE id = $1`, q.ID)
 	if err == nil && res.RowsAffected() != 1 {
-		err = ErrNoDataToDelete
+		err = ui.ErrNoDataToDelete
 	}
 	return err
 }
@@ -122,7 +124,7 @@ func (service *QService) UpdateQuestion(q Question) (Question, error) {
 			UPDATE question.question SET content = $1, has_best = $2 WHERE id = $3`,
 			content, best, q.ID)
 		if err == nil && res.RowsAffected() != 1 {
-			err = ErrNoDataToUpdate
+			err = ui.ErrNoDataToUpdate
 		}
 	}
 

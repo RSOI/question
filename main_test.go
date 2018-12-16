@@ -8,6 +8,7 @@ import (
 
 	"github.com/RSOI/question/controller"
 	"github.com/RSOI/question/model"
+	"github.com/RSOI/question/ui"
 
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttputil"
@@ -124,7 +125,7 @@ func TestAskAddCorrectData(t *testing.T) {
 		cMock.AssertExpectations(t)
 		assert.Equal(t, 201, res.Header.StatusCode())
 
-		var response controller.Response
+		var response ui.Response
 		json.Unmarshal(res.Body(), &response)
 		assert.Equal(t, 201, response.Status)
 		assert.Equal(t, "", response.Error)
@@ -149,10 +150,10 @@ func TestAskAddMissedOneField(t *testing.T) {
 	if assert.Nil(t, err) {
 		assert.Equal(t, 400, res.Header.StatusCode())
 
-		var response controller.Response
+		var response ui.Response
 		json.Unmarshal(res.Body(), &response)
 		assert.Equal(t, 400, response.Status)
-		assert.Equal(t, "required fields are empty: title", response.Error)
+		assert.Equal(t, ui.ErrFieldsRequired.Error(), response.Error)
 		assert.Equal(t, nil, response.Data)
 	}
 }
@@ -168,10 +169,10 @@ func TestAskAddMissedManyField(t *testing.T) {
 	if assert.Nil(t, err) {
 		assert.Equal(t, 400, res.Header.StatusCode())
 
-		var response controller.Response
+		var response ui.Response
 		json.Unmarshal(res.Body(), &response)
 		assert.Equal(t, 400, response.Status)
-		assert.Equal(t, "required fields are empty: title, content", response.Error)
+		assert.Equal(t, ui.ErrFieldsRequired.Error(), response.Error)
 		assert.Equal(t, nil, response.Data)
 	}
 }
@@ -187,7 +188,7 @@ func TestAskAddBrokenBody(t *testing.T) {
 	if assert.Nil(t, err) {
 		assert.Equal(t, 500, res.Header.StatusCode())
 
-		var response controller.Response
+		var response ui.Response
 		json.Unmarshal(res.Body(), &response)
 		assert.Equal(t, 500, response.Status)
 		assert.NotEqual(t, "", response.Error)
@@ -214,7 +215,7 @@ func TestQuestionGetByIDCorrectData(t *testing.T) {
 		cMock.AssertExpectations(t)
 		assert.Equal(t, 200, res.Header.StatusCode())
 
-		var response controller.Response
+		var response ui.Response
 		json.Unmarshal(res.Body(), &response)
 		assert.Equal(t, 200, response.Status)
 		assert.Equal(t, "", response.Error)
@@ -234,17 +235,17 @@ func TestQuestionGetByIDNotFound(t *testing.T) {
 	req.SetRequestURI(HOST + "/question/id0")
 	req.Header.SetMethod("GET")
 
-	cMock.On("GetQuestionByID", 0).Return(model.Question{}, model.ErrNoResult)
+	cMock.On("GetQuestionByID", 0).Return(model.Question{}, ui.ErrNoResult)
 
 	err := client.Do(req, res)
 	if assert.Nil(t, err) {
 		cMock.AssertExpectations(t)
 		assert.Equal(t, 404, res.Header.StatusCode())
 
-		var response controller.Response
+		var response ui.Response
 		json.Unmarshal(res.Body(), &response)
 		assert.Equal(t, 404, response.Status)
-		assert.Equal(t, model.ErrNoResult.Error(), response.Error)
+		assert.Equal(t, ui.ErrNoResult.Error(), response.Error)
 		assert.Equal(t, nil, response.Data)
 	}
 }
@@ -271,7 +272,7 @@ func TestQuestionGetByAuthorIDCorrectData(t *testing.T) {
 		cMock.AssertExpectations(t)
 		assert.Equal(t, 200, res.Header.StatusCode())
 
-		var response controller.Response
+		var response ui.Response
 		json.Unmarshal(res.Body(), &response)
 		assert.Equal(t, 200, response.Status)
 		assert.Equal(t, "", response.Error)
@@ -303,7 +304,7 @@ func TestQuestionGetByAuthorIDNotFound(t *testing.T) {
 		cMock.AssertExpectations(t)
 		assert.Equal(t, 200, res.Header.StatusCode())
 
-		var response controller.Response
+		var response ui.Response
 		json.Unmarshal(res.Body(), &response)
 		assert.Equal(t, 200, response.Status)
 		assert.Equal(t, "", response.Error)
@@ -335,7 +336,7 @@ func TestUpdateCorrectData(t *testing.T) {
 		cMock.AssertExpectations(t)
 		assert.Equal(t, 200, res.Header.StatusCode())
 
-		var response controller.Response
+		var response ui.Response
 		json.Unmarshal(res.Body(), &response)
 		assert.Equal(t, 200, response.Status)
 		assert.Equal(t, "", response.Error)
@@ -355,17 +356,17 @@ func TestUpdateNotFound(t *testing.T) {
 	req.Header.SetMethod("PATCH")
 	req.SetBody(source)
 
-	cMock.On("UpdateQuestion", updatedQuestion).Return(model.Question{}, model.ErrNoDataToUpdate)
+	cMock.On("UpdateQuestion", updatedQuestion).Return(model.Question{}, ui.ErrNoDataToUpdate)
 
 	err := client.Do(req, res)
 	if assert.Nil(t, err) {
 		cMock.AssertExpectations(t)
 		assert.Equal(t, 404, res.Header.StatusCode())
 
-		var response controller.Response
+		var response ui.Response
 		json.Unmarshal(res.Body(), &response)
 		assert.Equal(t, 404, response.Status)
-		assert.Equal(t, model.ErrNoDataToUpdate.Error(), response.Error)
+		assert.Equal(t, ui.ErrNoDataToUpdate.Error(), response.Error)
 		assert.Equal(t, nil, response.Data)
 	}
 }
@@ -381,10 +382,10 @@ func TestUpdateMissedID(t *testing.T) {
 	if assert.Nil(t, err) {
 		assert.Equal(t, 400, res.Header.StatusCode())
 
-		var response controller.Response
+		var response ui.Response
 		json.Unmarshal(res.Body(), &response)
 		assert.Equal(t, 400, response.Status)
-		assert.Equal(t, "required fields are empty: id", response.Error)
+		assert.Equal(t, "missed required field(s)", response.Error)
 		assert.Equal(t, nil, response.Data)
 	}
 }
@@ -400,7 +401,7 @@ func TestUpdateBrokenBody(t *testing.T) {
 	if assert.Nil(t, err) {
 		assert.Equal(t, 500, res.Header.StatusCode())
 
-		var response controller.Response
+		var response ui.Response
 		json.Unmarshal(res.Body(), &response)
 		assert.Equal(t, 500, response.Status)
 		assert.NotEqual(t, "", response.Error)
@@ -433,7 +434,7 @@ func TestRemoveByIDCorrectData(t *testing.T) {
 		cMock.AssertExpectations(t)
 		assert.Equal(t, 200, res.Header.StatusCode())
 
-		var response controller.Response
+		var response ui.Response
 		json.Unmarshal(res.Body(), &response)
 		assert.Equal(t, 200, response.Status)
 		assert.Equal(t, "", response.Error)
@@ -460,7 +461,7 @@ func TestRemoveByAuthorIDCorrectData(t *testing.T) {
 		cMock.AssertExpectations(t)
 		assert.Equal(t, 200, res.Header.StatusCode())
 
-		var response controller.Response
+		var response ui.Response
 		json.Unmarshal(res.Body(), &response)
 		assert.Equal(t, 200, response.Status)
 		assert.Equal(t, "", response.Error)
@@ -480,17 +481,17 @@ func TestRemoveByIDNotFound(t *testing.T) {
 	req.Header.SetMethod("DELETE")
 	req.SetBody(questionToRemoveJSON)
 
-	cMock.On("DeleteQuestionByID", questionToRemove).Return(model.ErrNoDataToDelete)
+	cMock.On("DeleteQuestionByID", questionToRemove).Return(ui.ErrNoDataToDelete)
 
 	err := client.Do(req, res)
 	if assert.Nil(t, err) {
 		cMock.AssertExpectations(t)
 		assert.Equal(t, 404, res.Header.StatusCode())
 
-		var response controller.Response
+		var response ui.Response
 		json.Unmarshal(res.Body(), &response)
 		assert.Equal(t, 404, response.Status)
-		assert.Equal(t, model.ErrNoDataToDelete.Error(), response.Error)
+		assert.Equal(t, ui.ErrNoDataToDelete.Error(), response.Error)
 		assert.Equal(t, nil, response.Data)
 	}
 }
@@ -509,10 +510,10 @@ func TestRemoveMissedIDs(t *testing.T) {
 		cMock.AssertExpectations(t)
 		assert.Equal(t, 400, res.Header.StatusCode())
 
-		var response controller.Response
+		var response ui.Response
 		json.Unmarshal(res.Body(), &response)
 		assert.Equal(t, 400, response.Status)
-		assert.Equal(t, "required fields are empty: id, author_id", response.Error)
+		assert.Equal(t, ui.ErrFieldsRequired.Error(), response.Error)
 		assert.Equal(t, nil, response.Data)
 	}
 }

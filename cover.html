@@ -54,9 +54,21 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">/users/dzaytsev/go/src/github.com/RSOI/question/main.go (0.0%)</option>
+				<option value="file0">github.com/RSOI/question/controller/ask.go (91.7%)</option>
 				
-				<option value="file1">/users/dzaytsev/go/src/github.com/RSOI/question/routing.go (100.0%)</option>
+				<option value="file1">github.com/RSOI/question/controller/controller.go (0.0%)</option>
+				
+				<option value="file2">github.com/RSOI/question/controller/get.go (90.9%)</option>
+				
+				<option value="file3">github.com/RSOI/question/controller/remove.go (91.7%)</option>
+				
+				<option value="file4">github.com/RSOI/question/controller/servicestat.go (0.0%)</option>
+				
+				<option value="file5">github.com/RSOI/question/controller/update.go (100.0%)</option>
+				
+				<option value="file6">github.com/RSOI/question/main.go (0.0%)</option>
+				
+				<option value="file7">github.com/RSOI/question/routing.go (100.0%)</option>
 				
 				</select>
 			</div>
@@ -70,42 +82,299 @@
 		</div>
 		<div id="content">
 		
-		<pre class="file" id="file0" style="display: none">// QUESTION SERVICE
+		<pre class="file" id="file0" style="display: none">package controller
+
+import (
+        "encoding/json"
+
+        "github.com/RSOI/question/model"
+        "github.com/RSOI/question/view"
+)
+
+// AskPUT new question
+func AskPUT(body []byte) (*model.Question, error) <span class="cov8" title="1">{
+        var err error
+
+        var NewQuestion model.Question
+        err = json.Unmarshal(body, &amp;NewQuestion)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">err = view.ValidateNewQuestion(NewQuestion)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">NewQuestion, err = QuestionModel.AddQuestion(NewQuestion)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return &amp;NewQuestion, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package controller
+
+import (
+        "github.com/RSOI/question/model"
+        "github.com/jackc/pgx"
+)
+
+var (
+        // QuestionModel interface with methods
+        QuestionModel model.QServiceInterface
+)
+
+// Init Init model with pgx connection
+func Init(db *pgx.ConnPool) <span class="cov0" title="0">{
+        QuestionModel = &amp;model.QService{
+                Conn: db,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package controller
+
+import (
+        "strconv"
+
+        "github.com/RSOI/question/model"
+)
+
+// QuestionGET get question by id
+func QuestionGET(id string) (*model.Question, error) <span class="cov8" title="1">{
+        qID, _ := strconv.Atoi(id)
+
+        Question, err := QuestionModel.GetQuestionByID(qID)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return &amp;Question, nil</span>
+}
+
+// QuestionsGET get questions by author
+func QuestionsGET(aid string) ([]model.Question, error) <span class="cov8" title="1">{
+        var err error
+
+        qAuthorID, _ := strconv.Atoi(aid)
+
+        data, err := QuestionModel.GetQuestionsByAuthorID(qAuthorID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return data, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package controller
+
+import (
+        "encoding/json"
+
+        "github.com/RSOI/question/model"
+        "github.com/RSOI/question/view"
+)
+
+// RemoveDELETE remove question
+func RemoveDELETE(body []byte) error <span class="cov8" title="1">{
+        var err error
+
+        var QuestionToRemove model.Question
+        err = json.Unmarshal(body, &amp;QuestionToRemove)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">f, err := view.ValidateDeleteQuestion(QuestionToRemove)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">switch f </span>{
+        case "id":<span class="cov8" title="1">
+                err = QuestionModel.DeleteQuestionByID(QuestionToRemove)</span>
+        case "author_id":<span class="cov8" title="1">
+                err = QuestionModel.DeleteQuestionByAuthorID(QuestionToRemove)</span>
+        }
+
+        <span class="cov8" title="1">return err</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package controller
+
+import (
+        "encoding/json"
+
+        "github.com/RSOI/question/ui"
+        "github.com/valyala/fasthttp"
+)
+
+// IndexGET returns usage statistic
+func IndexGET(ctx *fasthttp.RequestCtx) <span class="cov0" title="0">{
+        var err error
+        var r ui.Response
+        r.Status = 200
+        r.Data, err = QuestionModel.GetUsageStatistic(string(ctx.Host()))
+        if err != nil </span><span class="cov0" title="0">{
+                r.Status, r.Error = ui.ErrToResponse(err)
+                r.Data = nil
+        }</span>
+
+        <span class="cov0" title="0">ctx.Response.Header.Set("Content-Type", "application/json")
+        ctx.Response.SetStatusCode(r.Status)
+
+        content, _ := json.Marshal(r)
+        ctx.Write(content)</span>
+}
+
+// LogStat stores service usage
+func LogStat(path []byte, status int, err string) <span class="cov0" title="0">{
+        QuestionModel.LogStat(path, status, err)
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package controller
+
+import (
+        "encoding/json"
+
+        "github.com/RSOI/question/model"
+        "github.com/RSOI/question/view"
+)
+
+// UpdatePATCH remove question
+func UpdatePATCH(body []byte) (*model.Question, error) <span class="cov8" title="1">{
+        var err error
+
+        var QuestionToUpdate model.Question
+        var UpdatedQuestion model.Question
+        err = json.Unmarshal(body, &amp;QuestionToUpdate)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">err = view.ValidateUpdateQuestion(QuestionToUpdate)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">UpdatedQuestion, err = QuestionModel.UpdateQuestion(QuestionToUpdate)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">return &amp;UpdatedQuestion, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">// QUESTION SERVICE
 
 package main
 
 import (
         "fmt"
+        "os"
 
         "github.com/RSOI/question/controller"
-
         "github.com/RSOI/question/database"
+        "github.com/RSOI/question/utils"
         "github.com/valyala/fasthttp"
 )
 
 func main() <span class="cov0" title="0">{
+        if len(os.Args) &gt; 1 </span><span class="cov0" title="0">{
+                utils.DEBUG = os.Args[1] == "debug"
+        }</span>
+        <span class="cov0" title="0">utils.LOG("Launched in debug mode...")
+
         const PORT = 8080
         controller.Init(database.Connect())
-        fmt.Println("Question service is starting on localhost:", PORT)
-        fasthttp.ListenAndServe(fmt.Sprintf(":%d", PORT), initRoutes().Handler)
-}</span>
+        utils.LOG(fmt.Sprintf("Question service is starting on localhost: %d", PORT))
+        fasthttp.ListenAndServe(fmt.Sprintf(":%d", PORT), initRoutes().Handler)</span>
+}
 </pre>
 		
-		<pre class="file" id="file1" style="display: none">package main
+		<pre class="file" id="file7" style="display: none">package main
 
 import (
+        "encoding/json"
+
         "github.com/RSOI/question/controller"
+        "github.com/RSOI/question/ui"
         "github.com/buaazp/fasthttprouter"
+        "github.com/valyala/fasthttp"
 )
+
+func sendResponse(ctx *fasthttp.RequestCtx, r ui.Response) <span class="cov8" title="1">{
+        ctx.Response.Header.Set("Content-Type", "application/json")
+        ctx.Response.SetStatusCode(r.Status)
+        controller.LogStat(ctx.Path(), r.Status, r.Error)
+
+        content, _ := json.Marshal(r)
+        ctx.Write(content)
+}</span>
+
+func askPUT(ctx *fasthttp.RequestCtx) <span class="cov8" title="1">{
+        var err error
+        var r ui.Response
+
+        r.Data, err = controller.AskPUT(ctx.PostBody())
+        r.Status, r.Error = ui.ErrToResponse(err)
+        if r.Status == 200 </span><span class="cov8" title="1">{
+                r.Status = 201 // REST :)
+        }</span>
+        <span class="cov8" title="1">sendResponse(ctx, r)</span>
+}
+
+func questionGET(ctx *fasthttp.RequestCtx) <span class="cov8" title="1">{
+        var err error
+        var r ui.Response
+
+        id := ctx.UserValue("id").(string)
+        r.Data, err = controller.QuestionGET(id)
+        r.Status, r.Error = ui.ErrToResponse(err)
+        sendResponse(ctx, r)
+}</span>
+
+func questionsGET(ctx *fasthttp.RequestCtx) <span class="cov8" title="1">{
+        var err error
+        var r ui.Response
+
+        aid := ctx.UserValue("authorid").(string)
+        r.Data, err = controller.QuestionsGET(aid)
+        r.Status, r.Error = ui.ErrToResponse(err)
+        sendResponse(ctx, r)
+}</span>
+
+func updatePATCH(ctx *fasthttp.RequestCtx) <span class="cov8" title="1">{
+        var err error
+        var r ui.Response
+
+        r.Data, err = controller.UpdatePATCH(ctx.PostBody())
+        r.Status, r.Error = ui.ErrToResponse(err)
+        sendResponse(ctx, r)
+}</span>
+
+func removeDELETE(ctx *fasthttp.RequestCtx) <span class="cov8" title="1">{
+        var err error
+        var r ui.Response
+
+        err = controller.RemoveDELETE(ctx.PostBody())
+        r.Status, r.Error = ui.ErrToResponse(err)
+        sendResponse(ctx, r)
+}</span>
 
 func initRoutes() *fasthttprouter.Router <span class="cov8" title="1">{
         router := fasthttprouter.New()
         router.GET("/", controller.IndexGET)
-        router.PUT("/ask", controller.AskPUT)
-        router.GET("/question/id:id", controller.QuestionGET)
-        router.GET("/questions/author:authorid", controller.QuestionsGET)
-        router.PATCH("/update", controller.UpdatePATCH)
-        router.DELETE("/delete", controller.RemoveDELETE)
+        router.PUT("/ask", askPUT)
+        router.GET("/question/id:id", questionGET)
+        router.GET("/questions/author:authorid", questionsGET)
+        router.PATCH("/update", updatePATCH)
+        router.DELETE("/delete", removeDELETE)
 
         return router
 }</span>
