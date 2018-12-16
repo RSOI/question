@@ -1,28 +1,17 @@
 package controller
 
 import (
-	"encoding/json"
-
-	"github.com/RSOI/question/ui"
-	"github.com/valyala/fasthttp"
+	"github.com/RSOI/question/model"
 )
 
 // IndexGET returns usage statistic
-func IndexGET(ctx *fasthttp.RequestCtx) {
-	var err error
-	var r ui.Response
-	r.Status = 200
-	r.Data, err = QuestionModel.GetUsageStatistic(string(ctx.Host()))
+func IndexGET(host []byte) (*model.ServiceStatus, error) {
+	data, err := QuestionModel.GetUsageStatistic(string(host))
 	if err != nil {
-		r.Status, r.Error = ui.ErrToResponse(err)
-		r.Data = nil
+		return nil, err
 	}
 
-	ctx.Response.Header.Set("Content-Type", "application/json")
-	ctx.Response.SetStatusCode(r.Status)
-
-	content, _ := json.Marshal(r)
-	ctx.Write(content)
+	return &data, nil
 }
 
 // LogStat stores service usage

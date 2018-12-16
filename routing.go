@@ -9,13 +9,32 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-func sendResponse(ctx *fasthttp.RequestCtx, r ui.Response) {
+func sendResponse(ctx *fasthttp.RequestCtx, r ui.Response, nolog ...bool) {
 	ctx.Response.Header.Set("Content-Type", "application/json")
 	ctx.Response.SetStatusCode(r.Status)
-	controller.LogStat(ctx.Path(), r.Status, r.Error)
+
+	doLog := true
+	if len(nolog) > 0 {
+		doLog = !nolog[0]
+	}
+
+	if doLog {
+		controller.LogStat(ctx.Path(), r.Status, r.Error)
+	}
 
 	content, _ := json.Marshal(r)
 	ctx.Write(content)
+}
+
+func indexGET(ctx *fasthttp.RequestCtx) {
+	var err error
+	var r ui.Response
+
+	r.Data, err = controller.IndexGET(ctx.Host())
+	r.Status, r.Error = ui.ErrToResponse(err)
+
+	nolog := true
+	sendResponse(ctx, r, nolog)
 }
 
 func askPUT(ctx *fasthttp.RequestCtx) {
@@ -70,7 +89,7 @@ func removeDELETE(ctx *fasthttp.RequestCtx) {
 
 func initRoutes() *fasthttprouter.Router {
 	router := fasthttprouter.New()
-	router.GET("/", controller.IndexGET)
+	router.GET("/", indexGET)
 	router.PUT("/ask", askPUT)
 	router.GET("/question/id:id", questionGET)
 	router.GET("/questions/author:authorid", questionsGET)
