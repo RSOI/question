@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/RSOI/question/controller"
 	"github.com/RSOI/question/ui"
+	"github.com/RSOI/question/utils"
 	"github.com/buaazp/fasthttprouter"
 	"github.com/valyala/fasthttp"
 )
@@ -12,6 +14,7 @@ import (
 func sendResponse(ctx *fasthttp.RequestCtx, r ui.Response, nolog ...bool) {
 	ctx.Response.Header.Set("Content-Type", "application/json")
 	ctx.Response.SetStatusCode(r.Status)
+	utils.LOG(fmt.Sprintf("Sending response. Status: %d", r.Status))
 
 	doLog := true
 	if len(nolog) > 0 {
@@ -27,6 +30,7 @@ func sendResponse(ctx *fasthttp.RequestCtx, r ui.Response, nolog ...bool) {
 }
 
 func indexGET(ctx *fasthttp.RequestCtx) {
+	utils.LOG(fmt.Sprintf("Request: Get service stats (%s)", ctx.Path()))
 	var err error
 	var r ui.Response
 
@@ -38,6 +42,7 @@ func indexGET(ctx *fasthttp.RequestCtx) {
 }
 
 func askPUT(ctx *fasthttp.RequestCtx) {
+	utils.LOG(fmt.Sprintf("Request: Ask new question (%s)", ctx.Path()))
 	var err error
 	var r ui.Response
 
@@ -50,6 +55,7 @@ func askPUT(ctx *fasthttp.RequestCtx) {
 }
 
 func questionGET(ctx *fasthttp.RequestCtx) {
+	utils.LOG(fmt.Sprintf("Request: Get one question (%s)", ctx.Path()))
 	var err error
 	var r ui.Response
 
@@ -60,6 +66,7 @@ func questionGET(ctx *fasthttp.RequestCtx) {
 }
 
 func questionsGET(ctx *fasthttp.RequestCtx) {
+	utils.LOG(fmt.Sprintf("Request: Get questions by author (%s)", ctx.Path()))
 	var err error
 	var r ui.Response
 
@@ -70,6 +77,7 @@ func questionsGET(ctx *fasthttp.RequestCtx) {
 }
 
 func updatePATCH(ctx *fasthttp.RequestCtx) {
+	utils.LOG(fmt.Sprintf("Request: Update question (%s)", ctx.Path()))
 	var err error
 	var r ui.Response
 
@@ -79,6 +87,7 @@ func updatePATCH(ctx *fasthttp.RequestCtx) {
 }
 
 func removeDELETE(ctx *fasthttp.RequestCtx) {
+	utils.LOG(fmt.Sprintf("Request: Delete question (%s)", ctx.Path()))
 	var err error
 	var r ui.Response
 
@@ -88,6 +97,7 @@ func removeDELETE(ctx *fasthttp.RequestCtx) {
 }
 
 func initRoutes() *fasthttprouter.Router {
+	utils.LOG("Setup router...")
 	router := fasthttprouter.New()
 	router.GET("/", indexGET)
 	router.PUT("/ask", askPUT)

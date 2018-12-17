@@ -1,9 +1,11 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/RSOI/question/ui"
+	"github.com/RSOI/question/utils"
 )
 
 // Question interface
@@ -20,6 +22,7 @@ type Question struct {
 func (service *QService) AddQuestion(q Question) (Question, error) {
 	var err error
 
+	utils.LOG("Accessing database...")
 	row := service.Conn.QueryRow(`
 		INSERT INTO question.question
 			(title, content, author_id) VALUES ($1, $2, $3)
@@ -32,6 +35,7 @@ func (service *QService) AddQuestion(q Question) (Question, error) {
 
 // DeleteQuestionByID delete question by id
 func (service *QService) DeleteQuestionByID(q Question) error {
+	utils.LOG("Accessing database...")
 	res, err := service.Conn.Exec(`DELETE FROM question.question WHERE id = $1`, q.ID)
 	if err == nil && res.RowsAffected() != 1 {
 		err = ui.ErrNoDataToDelete
@@ -41,8 +45,10 @@ func (service *QService) DeleteQuestionByID(q Question) error {
 
 // DeleteQuestionByAuthorID delete question by author id
 func (service *QService) DeleteQuestionByAuthorID(q Question) error {
+	utils.LOG("Accessing database...")
 	res, err := service.Conn.Exec(`DELETE FROM question.question WHERE author_id = $1`, q.AuthorID)
 	if err == nil && res.RowsAffected() != 1 {
+		utils.LOG(fmt.Sprintf("Author with id '%d' has no questions", q.AuthorID))
 		err = nil
 	}
 	return err
@@ -53,6 +59,7 @@ func (service *QService) GetQuestionByID(qID int) (Question, error) {
 	var err error
 	var q Question
 
+	utils.LOG("Accessing database...")
 	row := service.Conn.QueryRow(`SELECT * FROM question.question WHERE id = $1`, qID)
 
 	err = row.Scan(
@@ -71,6 +78,7 @@ func (service *QService) GetQuestionsByAuthorID(qAuthorID int) ([]Question, erro
 	var err error
 	q := make([]Question, 0)
 
+	utils.LOG("Accessing database...")
 	rows, err := service.Conn.Query(`SELECT * FROM question.question WHERE author_id = $1 ORDER BY id ASC`, qAuthorID)
 	if err != nil {
 		return q, err
@@ -120,6 +128,7 @@ func (service *QService) UpdateQuestion(q Question) (Question, error) {
 			best = *currentQuestionData.HasBest
 		}
 
+		utils.LOG("Accessing database...")
 		res, err := service.Conn.Exec(`
 			UPDATE question.question SET content = $1, has_best = $2 WHERE id = $3`,
 			content, best, q.ID)

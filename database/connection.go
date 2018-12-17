@@ -1,21 +1,31 @@
 package database
 
 import (
+	"fmt"
 	"io/ioutil"
 	"runtime"
 
+	"github.com/RSOI/question/utils"
 	"github.com/jackc/pgx"
+)
+
+var (
+	// HOST postgres host
+	HOST = "localhost"
+	// PORT postgres port
+	PORT uint16 = 5432
 )
 
 // Connect to postgrss
 func Connect() *pgx.ConnPool {
+	utils.LOG(fmt.Sprintf("Connecting postgress: %s:%d", HOST, PORT))
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	connection := pgx.ConnConfig{
-		Host:     "localhost",
+		Host:     HOST,
 		User:     "dzaytsev",
 		Password: "126126",
 		Database: "rsoi",
-		Port:     5432,
+		Port:     PORT,
 	}
 
 	var err error
@@ -33,8 +43,11 @@ func Connect() *pgx.ConnPool {
 }
 
 func createShema(db *pgx.ConnPool) error {
+	utils.LOG("Creating scheme...")
+
 	sql, err := ioutil.ReadFile("database/scheme.sql")
 	if err != nil {
+		utils.LOG(fmt.Sprintf("Error while creating scheme: %s", err.Error()))
 		return err
 	}
 	shema := string(sql)

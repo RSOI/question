@@ -1,8 +1,10 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/RSOI/question/utils"
 	"github.com/jackc/pgx"
 )
 
@@ -25,6 +27,7 @@ type ServiceStatus struct {
 func (service *QService) GetUsageStatistic(host string) (ServiceStatus, error) {
 	var err error
 
+	utils.LOG("Accessing database...")
 	row := service.Conn.QueryRow(`
 		SELECT cnt.*, last_usage.* FROM
 			(SELECT count(*) FROM question.services) AS cnt,
@@ -60,10 +63,12 @@ func (service *QService) LogStat(request []byte, responseStatus int, responseErr
 	`, string(request), responseStatus, responseError)
 
 	if err != nil {
-		// log
+		utils.LOG(fmt.Sprintf("Error while storing statistic: %s", err.Error()))
 	} else {
 		if res.RowsAffected() != 1 {
-			// log
+			utils.LOG("Unable store statistic")
+		} else {
+			utils.LOG("Statistic stored successfully")
 		}
 	}
 }

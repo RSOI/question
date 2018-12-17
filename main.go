@@ -12,14 +12,16 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+// PORT application port
+const PORT = 8080
+
 func main() {
 	if len(os.Args) > 1 {
 		utils.DEBUG = os.Args[1] == "debug"
 	}
 	utils.LOG("Launched in debug mode...")
-
-	const PORT = 8080
-	controller.Init(database.Connect())
 	utils.LOG(fmt.Sprintf("Question service is starting on localhost: %d", PORT))
+
+	controller.Init(database.Connect())
 	fasthttp.ListenAndServe(fmt.Sprintf(":%d", PORT), initRoutes().Handler)
 }
