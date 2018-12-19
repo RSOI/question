@@ -58,25 +58,28 @@ var (
 	updatedQuestionHasBest        = true
 	defaultQuestionCreatedTime, _ = time.Parse("2006-01-02T15:04:05", time.Now().String())
 	defaultQuestion               = model.Question{
-		AuthorID: 1,
-		Title:    "My Title",
-		Content:  &defaultQuestionContent,
+		AuthorID:       1,
+		AuthorNickname: "Test",
+		Title:          "My Title",
+		Content:        &defaultQuestionContent,
 	}
 	createdQuestion = model.Question{
-		ID:       1,
-		AuthorID: 1,
-		Title:    "My Title",
-		Content:  &defaultQuestionContent,
-		HasBest:  &defaultQuestionHasBest,
-		Created:  defaultQuestionCreatedTime,
+		ID:             1,
+		AuthorID:       1,
+		AuthorNickname: "Test",
+		Title:          "My Title",
+		Content:        &defaultQuestionContent,
+		HasBest:        &defaultQuestionHasBest,
+		Created:        defaultQuestionCreatedTime,
 	}
 	updatedQuestion = model.Question{
-		ID:       1,
-		AuthorID: 1,
-		Title:    "My Title",
-		Content:  &defaultQuestionContent,
-		HasBest:  &updatedQuestionHasBest,
-		Created:  defaultQuestionCreatedTime,
+		ID:             1,
+		AuthorID:       1,
+		AuthorNickname: "Test",
+		Title:          "My Title",
+		Content:        &defaultQuestionContent,
+		HasBest:        &updatedQuestionHasBest,
+		Created:        defaultQuestionCreatedTime,
 	}
 	questionToRemoveID = model.Question{
 		ID: 1,
