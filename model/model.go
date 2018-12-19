@@ -1,8 +1,21 @@
 package model
 
 import (
+	"time"
+
 	"github.com/jackc/pgx"
 )
+
+// Question interface
+type Question struct {
+	ID             int       `json:"id"`
+	Title          string    `json:"title"`
+	Content        *string   `json:"content"`
+	AuthorID       int       `json:"author_id"`
+	AuthorNickname string    `json:"author_nickname"`
+	HasBest        *bool     `json:"has_best"`
+	Created        time.Time `json:"created"`
+}
 
 // QService connection holder
 type QService struct {

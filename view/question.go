@@ -10,7 +10,8 @@ func ValidateNewQuestion(data model.Question) error {
 	if data.Title == "" ||
 		data.Content == nil ||
 		*data.Content == "" ||
-		data.AuthorID == 0 {
+		data.AuthorID == 0 ||
+		data.AuthorNickname == "" {
 		return ui.ErrFieldsRequired
 	}
 	return nil

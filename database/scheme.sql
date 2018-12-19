@@ -10,9 +10,14 @@ CREATE TABLE question.question (
 	title CITEXT NOT NULL,
 	content CITEXT NULL,
 	author_id INTEGER NOT NULL,
+	author_nickname CITEXT NOT NULL,
 	has_best BOOLEAN DEFAULT FALSE,
 	created TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE INDEX IF NOT EXISTS author_id_index ON question.question (author_id);
+CREATE INDEX IF NOT EXISTS has_best_index ON question.question (has_best);
+CREATE INDEX IF NOT EXISTS author_id__has_best_index ON question.question (author_id, has_best);
 
 CREATE TABLE question.services (
 	id SERIAL PRIMARY KEY,

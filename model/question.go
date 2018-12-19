@@ -2,21 +2,10 @@ package model
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/RSOI/question/ui"
 	"github.com/RSOI/question/utils"
 )
-
-// Question interface
-type Question struct {
-	ID       int       `json:"id"`
-	Title    string    `json:"title"`
-	Content  *string   `json:"content"`
-	AuthorID int       `json:"author_id"`
-	HasBest  *bool     `json:"has_best"`
-	Created  time.Time `json:"created"`
-}
 
 // AddQuestion add new question
 func (service *QService) AddQuestion(q Question) (Question, error) {
@@ -25,9 +14,9 @@ func (service *QService) AddQuestion(q Question) (Question, error) {
 	utils.LOG("Accessing database...")
 	row := service.Conn.QueryRow(`
 		INSERT INTO question.question
-			(title, content, author_id) VALUES ($1, $2, $3)
+			(title, content, author_id, author_nickname) VALUES ($1, $2, $3, $4)
 			RETURNING id, created, has_best
-	`, q.Title, q.Content, q.AuthorID)
+	`, q.Title, q.Content, q.AuthorID, q.AuthorNickname)
 
 	err = row.Scan(&q.ID, &q.Created, &q.HasBest)
 	return q, err
@@ -60,6 +49,7 @@ func (service *QService) GetQuestionByID(qID int) (Question, error) {
 	var q Question
 
 	utils.LOG("Accessing database...")
+	utils.LOG(fmt.Sprintf("SELECT * FROM question.question WHERE id = %d", qID))
 	row := service.Conn.QueryRow(`SELECT * FROM question.question WHERE id = $1`, qID)
 
 	err = row.Scan(
@@ -67,6 +57,7 @@ func (service *QService) GetQuestionByID(qID int) (Question, error) {
 		&q.Title,
 		&q.Content,
 		&q.AuthorID,
+		&q.AuthorNickname,
 		&q.HasBest,
 		&q.Created)
 
@@ -91,6 +82,7 @@ func (service *QService) GetQuestionsByAuthorID(qAuthorID int) ([]Question, erro
 			&tq.Title,
 			&tq.Content,
 			&tq.AuthorID,
+			&tq.AuthorNickname,
 			&tq.HasBest,
 			&tq.Created)
 
@@ -129,6 +121,7 @@ func (service *QService) UpdateQuestion(q Question) (Question, error) {
 		}
 
 		utils.LOG("Accessing database...")
+		utils.LOG(fmt.Sprintf("PDATE question.question SET content = %s, has_best = %t WHERE id = %d", content, best, q.ID))
 		res, err := service.Conn.Exec(`
 			UPDATE question.question SET content = $1, has_best = $2 WHERE id = $3`,
 			content, best, q.ID)
